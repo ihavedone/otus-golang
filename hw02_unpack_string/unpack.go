@@ -6,15 +6,14 @@ import (
 	"strings"
 )
 
-var ErrUnexpectedSlash = errors.New("unexpected slash")
-var ErrUnexpectedDigit = errors.New("unexpected digit")
+var (
+	ErrUnexpectedSlash = errors.New("unexpected slash")
+	ErrUnexpectedDigit = errors.New("unexpected digit")
+)
 
 func isDigit(current string) bool {
 	_, err := strconv.ParseInt(current, 10, 64)
-	if err == nil {
-		return true
-	}
-	return false
+	return err == nil
 }
 
 func extractSymbolAndGetTail(input string) (string, string, error) {
@@ -40,14 +39,14 @@ func extractSymbolAndGetTail(input string) (string, string, error) {
 		if isDigit(nextRune) {
 			parsedInt, _ := strconv.ParseInt(nextRune, 10, 64)
 			currentSymbol = strings.Repeat(currentSymbol, int(parsedInt))
-			offset += 1
+			offset++
 		}
 	}
 	return currentSymbol, string(runes[offset:]), nil
 }
 
 func Unpack(input string) (string, error) {
-	var inputTail = input
+	inputTail := input
 	var result strings.Builder
 	var err error
 	for {
@@ -57,7 +56,7 @@ func Unpack(input string) (string, error) {
 			return "", err
 		}
 		result.WriteString(currentSymbol)
-		if len(inputTail) <= 0 {
+		if len(inputTail) == 0 {
 			break
 		}
 	}
