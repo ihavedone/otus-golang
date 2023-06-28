@@ -6,10 +6,12 @@ import (
 	"strings"
 )
 
-const EXPECTED_SLICE_SIZE = 10
+const expectedSliceSize = 10
 
-var blackListWords = []string{"", "-"}
-var separatorRegexp = regexp.MustCompile(`[-]?[\s,.!?'":;@#$%^&*(){}<>\[\]_]+[-]?`)
+var (
+	blackListWords  = []string{"", "-"}
+	separatorRegexp = regexp.MustCompile(`[-]?[\s,.!?'":;@#$%^&*(){}<>\[\]_]+[-]?`)
+)
 
 type Word struct {
 	value   string
@@ -17,23 +19,23 @@ type Word struct {
 }
 type Words []Word
 
-func (wordsPtr *Words) add(text string) {
+func (words *Words) add(text string) {
 	for _, v := range blackListWords {
 		if text == v {
 			return
 		}
 	}
-	*wordsPtr = append(*wordsPtr, Word{value: text, counter: 1})
+	*words = append(*words, Word{value: text, counter: 1})
 }
 
-func (wordsPtr *Words) Calc(text string) {
-	for indx := range *wordsPtr {
-		if (*wordsPtr)[indx].value == text {
-			(*wordsPtr)[indx].counter++
+func (words *Words) Calc(text string) {
+	for indx := range *words {
+		if (*words)[indx].value == text {
+			(*words)[indx].counter++
 			return
 		}
 	}
-	wordsPtr.add(text)
+	words.add(text)
 }
 
 func (words Words) Sort() Words {
@@ -47,7 +49,7 @@ func (words Words) Sort() Words {
 }
 
 func (words Words) Head(n int) Words {
-	var output Words
+	output := make(Words, 0)
 	for _, word := range words {
 		output = append(output, word)
 		if len(output) >= n {
@@ -58,7 +60,7 @@ func (words Words) Head(n int) Words {
 }
 
 func (words Words) ToStrings() []string {
-	var output []string
+	output := make([]string, 0)
 	for _, word := range words {
 		output = append(output, word.value)
 	}
@@ -71,5 +73,5 @@ func Top10(text string) []string {
 	for _, token := range tokens {
 		words.Calc(strings.ToLower(token))
 	}
-	return words.Sort().Head(EXPECTED_SLICE_SIZE).ToStrings()
+	return words.Sort().Head(expectedSliceSize).ToStrings()
 }
