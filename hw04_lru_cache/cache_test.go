@@ -20,6 +20,59 @@ func TestCache(t *testing.T) {
 		require.False(t, ok)
 	})
 
+	t.Run("simple cache", func(t *testing.T) {
+		c := NewCache(10)
+
+		wasInCache := c.Set("aaa", 100)
+		require.False(t, wasInCache)
+	})
+
+	t.Run("clear cache", func(t *testing.T) {
+		c := NewCache(10)
+
+		c.Set("aaa", 100)
+		c.Set("bbb", 100)
+		_, existsFlag := c.Get("bbb")
+		require.True(t, existsFlag)
+		c.Clear()
+		_, existsFlag = c.Get("bbb")
+		require.False(t, existsFlag)
+		_, existsFlag = c.Get("aaa")
+		require.False(t, existsFlag)
+	})
+
+	t.Run("remove oldest item", func(t *testing.T) {
+		c := NewCache(5)
+		c.Set("a", 100)
+		c.Set("b", 200)
+		c.Set("c", 300)
+		c.Set("d", 400)
+		c.Set("e", 500)
+		c.Set("f", 600)
+		_, existsFlag := c.Get("a")
+		require.False(t, existsFlag)
+		_, existsFlag = c.Get("f")
+		require.True(t, existsFlag)
+	})
+
+	t.Run("remove oldest item with get", func(t *testing.T) {
+		c := NewCache(5)
+		c.Set("a", 100)
+		c.Set("b", 200)
+		c.Set("c", 300)
+		c.Set("d", 400)
+		c.Set("e", 500)
+		_, existsFlag := c.Get("a") // make "b" oldest value
+		require.True(t, existsFlag)
+		c.Set("f", 600)
+		_, existsFlag = c.Get("f")
+		require.True(t, existsFlag)
+		_, existsFlag = c.Get("a")
+		require.True(t, existsFlag)
+		_, existsFlag = c.Get("b")
+		require.False(t, existsFlag)
+	})
+
 	t.Run("simple", func(t *testing.T) {
 		c := NewCache(5)
 
@@ -55,8 +108,6 @@ func TestCache(t *testing.T) {
 }
 
 func TestCacheMultithreading(t *testing.T) {
-	t.Skip() // Remove me if task with asterisk completed.
-
 	c := NewCache(10)
 	wg := &sync.WaitGroup{}
 	wg.Add(2)
