@@ -32,11 +32,9 @@ func (l *lruCache) Set(key Key, value interface{}) bool {
 	element, existsFlag := l.items[key]
 	if existsFlag {
 		l.queue.Remove(element)
-	} else {
-		if l.queue.Len() == l.capacity {
-			delete(l.items, l.queue.Back().Value.(valueToMapLink).key)
-			l.queue.Remove(l.queue.Back())
-		}
+	} else if l.queue.Len() == l.capacity {
+		delete(l.items, l.queue.Back().Value.(valueToMapLink).key)
+		l.queue.Remove(l.queue.Back())
 	}
 	l.items[key] = l.queue.PushFront(valueToMapLink{key, value})
 	return existsFlag
