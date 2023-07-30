@@ -14,7 +14,7 @@ type Task func() error
 func Run(tasks []Task, runnersLimit, errorsLimit int) error {
 	var errors int32
 	wg := sync.WaitGroup{}
-	var chankSize = len(tasks) / runnersLimit
+	chankSize := len(tasks) / runnersLimit
 
 	for runner := 0; runner < runnersLimit; runner++ {
 		wg.Add(1)
