@@ -2,7 +2,6 @@ package hw05parallelexecution
 
 import (
 	"errors"
-	"math"
 	"sync"
 	"sync/atomic"
 )
@@ -14,16 +13,14 @@ type Task func() error
 func Run(tasks []Task, runnersLimit, errorsLimit int) error {
 	var errors int32
 	wg := sync.WaitGroup{}
-	chankSize := len(tasks) / runnersLimit
+	ch := tasksToChannel(tasks)
 
 	for runner := 0; runner < runnersLimit; runner++ {
 		wg.Add(1)
-		sliceFrom := runner * chankSize
-		sliceTo := int(math.Min(float64(sliceFrom+chankSize), float64(len(tasks))))
-		go func(tasksChank []Task) {
+		go func() {
 			defer wg.Done()
-			startRunner(tasksChank, &errors, int32(errorsLimit))
-		}(tasks[sliceFrom:sliceTo])
+			startRunner(&ch, &errors, int32(errorsLimit))
+		}()
 	}
 
 	wg.Wait()
@@ -33,8 +30,17 @@ func Run(tasks []Task, runnersLimit, errorsLimit int) error {
 	return nil
 }
 
-func startRunner(tasks []Task, errors *int32, errorsLimit int32) {
+func tasksToChannel(tasks []Task) chan Task {
+	ch := make(chan Task, len(tasks))
+	defer close(ch)
 	for _, task := range tasks {
+		ch <- task
+	}
+	return ch
+}
+
+func startRunner(channel *chan Task, errors *int32, errorsLimit int32) {
+	for task := range *channel {
 		if atomic.LoadInt32(errors) >= errorsLimit {
 			return
 		}
