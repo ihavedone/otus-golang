@@ -19,7 +19,7 @@ func Run(tasks []Task, runnersLimit, errorsLimit int) error {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			startRunner(&ch, &errors, int32(errorsLimit))
+			startRunner(ch, &errors, int32(errorsLimit))
 		}()
 	}
 
