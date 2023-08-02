@@ -39,8 +39,8 @@ func tasksToChannel(tasks []Task) chan Task {
 	return ch
 }
 
-func startRunner(сhannel chan Task, errors *int32, errorsLimit int32) {
-	for task := range *channel {
+func startRunner(channel chan Task, errors *int32, errorsLimit int32) {
+	for task := range channel {
 		if atomic.LoadInt32(errors) >= errorsLimit {
 			return
 		}
