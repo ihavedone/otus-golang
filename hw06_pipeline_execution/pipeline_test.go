@@ -157,10 +157,6 @@ func TestPipeline(t *testing.T) {
 			close(in)
 		}()
 
-		result := make([]string, 0, 10)
-		for s := range ExecutePipeline(in, done, nilStages...) {
-			result = append(result, s.(string))
-		}
-
+		ExecutePipeline(in, done, nilStages...)
 	})
 }
